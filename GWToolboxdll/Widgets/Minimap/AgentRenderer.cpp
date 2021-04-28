@@ -535,7 +535,8 @@ void AgentRenderer::Render(IDirect3DDevice9* device) {
     }
 }
 
-void AgentRenderer::Enqueue(const GW::Agent* agent, const CustomAgent* ca) {
+void AgentRenderer::Enqueue(const GW::Agent* agent, const CustomAgent* ca)
+{
     Color color = GetColor(agent, ca);
     float size = GetSize(agent, ca);
     Shape_e shape = GetShape(agent, ca);
@@ -544,6 +545,9 @@ void AgentRenderer::Enqueue(const GW::Agent* agent, const CustomAgent* ca) {
         // Target highlight if this is the current or next target
         if (auto_target_id == agent->agent_id || GW::Agents::GetTargetId() == agent->agent_id)
             Enqueue(shape, agent, size + 50.0f, Colors::Sub(color_target, IM_COL32(0, 0, 0, 50)));
+        else {
+            Enqueue(shape, agent, size + 20.0f, Colors::Sub(0xFF000000, IM_COL32(0, 0, 0, 50)));
+        }
     }
     return Enqueue(shape, agent, size, color);
 }

@@ -1002,9 +1002,10 @@ bool Minimap::OnMouseDown(UINT Message, WPARAM wParam, LPARAM lParam)
     if (!lock_move)
         return true;
 
-    pingslines_renderer.OnMouseDown(worldpos.x, worldpos.y);
+    //pingslines_renderer.OnMouseDown(worldpos.x, worldpos.y);
 
-    return true;
+    //return true;
+    return Message == WM_LBUTTONDOWN && FlagHeros(lParam);
 }
 
 bool Minimap::OnMouseDblClick(UINT Message, WPARAM wParam, LPARAM lParam)
@@ -1024,7 +1025,8 @@ bool Minimap::OnMouseDblClick(UINT Message, WPARAM wParam, LPARAM lParam)
         return true;
     }
 
-    return true;
+    //return true;
+    return Message == WM_LBUTTONDOWN && FlagHeros(lParam);
 }
 
 bool Minimap::OnMouseUp(UINT Message, WPARAM wParam, LPARAM lParam)
