@@ -368,6 +368,7 @@ void ChatCommands::Initialize() {
         GW::Chat::SendChat('/', "pingitem armor");
     });
     GW::Chat::CreateCommand(L"hero", ChatCommands::CmdHeroBehaviour);
+    GW::Chat::CreateCommand(L"curtain", ChatCommands::CmdCurtain);
 }
 
 bool ChatCommands::WndProc(UINT Message, WPARAM wParam, LPARAM lParam) {
@@ -1351,4 +1352,85 @@ void ChatCommands::CmdHeroBehaviour(const wchar_t*, int argc, LPWSTR* argv)
             GW::CtoS::SendPacket(0xC, GAME_CMSG_HERO_BEHAVIOR, hero.agent_id, behaviour);
         }
     }
+}
+
+void ChatCommands::CmdCurtain(const wchar_t*, int argc, LPWSTR* argv) {
+
+    // Arrays
+    std::vector<GW::Item*> shields;
+    int bagstocheck[6] = {1, 2, 3, 4, 5, 22};
+
+    // Stuff for searching bags
+    GW::Bag** bags = GW::Items::GetBagArray();
+    GW::Bag* bag = NULL;
+    int modelid = 38027; // anniversary shield
+
+    // Dmg types
+
+    const uint32_t bluntdmg = 0;
+    const uint32_t piercingdmg = 1;
+    const uint32_t slashingdmg = 2;
+    const uint32_t colddmg = 3;
+    const uint32_t lightningdmg = 4;
+    const uint32_t firedmg = 5;
+    const uint32_t earthdmg = 11;
+
+    for (auto bagindex : bagstocheck) {
+        bag = bags[bagindex];
+        if (bag != NULL) {
+            GW::ItemArray items = bag->items;
+            for (size_t i = 0; i < items.size(); i++) {
+                if (items[i]) {
+                    if (items[i]->model_id == modelid) {
+                        shields.push_back(items[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    // A dictionary would be better here?
+    for (auto item : shields) {
+        GW::ItemModifier* mod = &item->mod_struct[9];
+        uint32_t dmgtype = mod->arg1();
+
+        switch (dmgtype) {
+            case earthdmg: {                   // earth damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 3;            // green
+                break;
+            }
+            case colddmg: {                    // cold damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 44;           // blue + white
+                break;
+            }
+            case firedmg: {                    // fire damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 5;            // blue + white
+                break;
+            }
+            case lightningdmg: {               // lightning damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 6;            // yellow
+                break;
+            }
+            case bluntdmg: {                   // blunt damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 8;            // orange
+                break;
+            }
+            case slashingdmg: {                // slashing damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 12;           // white
+                break;
+            }
+            case piercingdmg: {                // piercing damage
+                item->model_file_id = 0x2AFD3; // Kappa Shield
+                item->extra_id = 7;           // brown
+                break;
+            }
+        }
+    } 
+
 }

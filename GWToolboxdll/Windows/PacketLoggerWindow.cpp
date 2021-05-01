@@ -434,6 +434,18 @@ static void CtoSHandler(GW::HookStatus* status, void* packet) {
     UNREFERENCED_PARAMETER(status);
      if (!logger_enabled) return;
      printf("CtoS packet(%u 0x%X) {\n", *(uint32_t*)packet, *(uint32_t*)packet);
+
+     for
+         (auto it = 0; it < 4; ++it) {
+
+         auto const* p_offset = reinterpret_cast<uint32_t*>(packet) + it;
+         auto const* p_float = (float*)p_offset;
+         printf("\t%d: %10d (%10.6f)\n", it, *p_offset, *p_float);
+
+
+     }
+
+     printf("}\n");
 }
 static void PacketHandler(GW::HookStatus* status, GW::Packet::StoC::PacketBase* packet)
 {
