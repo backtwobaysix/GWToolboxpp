@@ -1358,12 +1358,14 @@ void ChatCommands::CmdCurtain(const wchar_t*, int argc, LPWSTR* argv) {
 
     // Arrays
     std::vector<GW::Item*> shields;
+    std::vector<GW::Item*> envoys;
     int bagstocheck[6] = {1, 2, 3, 4, 5, 22};
 
     // Stuff for searching bags
     GW::Bag** bags = GW::Items::GetBagArray();
     GW::Bag* bag = NULL;
     int modelid = 38027; // anniversary shield
+    int modelidenvoy = 36671; // envoys
 
     // Dmg types
 
@@ -1384,10 +1386,18 @@ void ChatCommands::CmdCurtain(const wchar_t*, int argc, LPWSTR* argv) {
                     if (items[i]->model_id == modelid) {
                         shields.push_back(items[i]);
                     }
+
+                    if (items[i]->model_id == modelidenvoy) {
+                        envoys.push_back(items[i]);
+                    }
                 }
             }
         }
     }
+
+    for (auto item : envoys) {
+        item->model_file_id = 0x49A51;
+    } 
 
     // A dictionary would be better here?
     for (auto item : shields) {

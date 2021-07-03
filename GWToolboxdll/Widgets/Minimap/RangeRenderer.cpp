@@ -37,6 +37,7 @@ void RangeRenderer::LoadDefaults() {
     color_range_compass = 0xFF666611;
     color_range_chain_aggro = 0x00994444;
     color_range_res_aggro = 0x64D6D6D6;
+    color_range_glitched = 0xFF117777;
     color_range_shadowstep_aggro = Colors::ARGB(200, 128, 0, 128);
     line_thickness = 1.f;
     Invalidate();
@@ -123,6 +124,11 @@ void RangeRenderer::Initialize(IDirect3DDevice9 *device)
     vertices += CreateCircle(vertices, radius, color_range_cast);
     ASSERT(vertices < vertices_max);
 
+    // Glitched range
+    radius = 693.f;
+    vertices += CreateCircle(vertices, radius, color_range_glitched);
+    ASSERT(vertices < vertices_max);
+
     // Aggro range
     radius = GW::Constants::Range::Earshot;
     vertices += CreateCircle(vertices, radius, color_range_aggro);
@@ -203,7 +209,7 @@ void RangeRenderer::Render(IDirect3DDevice9 *device)
     size_t render_index = 0;
 
     // Draw first 4 ranges always (compass, spirit, cast, aggro)
-    while (render_index < 4) {
+    while (render_index < 5) { // was 4
         device->DrawPrimitive(type, circle_points * render_index, circle_triangles);
         render_index++;
     }

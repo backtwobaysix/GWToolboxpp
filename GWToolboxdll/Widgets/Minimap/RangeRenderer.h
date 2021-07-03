@@ -5,7 +5,7 @@
 
 class RangeRenderer : public VBuffer {
 private:
-    static constexpr size_t num_circles = 8;
+    static constexpr size_t num_circles = 9; //was 8
     static constexpr size_t circle_points = 96;
     static constexpr size_t circle_triangles = circle_points - 2;
 
@@ -49,4 +49,5 @@ private:
     Color color_range_spirit = 0;
     Color color_range_compass = 0;
     Color color_range_shadowstep_aggro = 0;
+    Color color_range_glitched = 0;
 };

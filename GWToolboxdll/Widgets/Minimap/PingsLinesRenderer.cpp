@@ -88,7 +88,7 @@ void PingsLinesRenderer::P046Callback(GW::Packet::StoC::AgentPinged *pak) {
             if (ping->GetAgentID() == pak->agent_id) {
                 // extend the duration to count for the current ping.
                 clock_t diff = TIMER_DIFF(ping->start);
-                ping->duration = 3000 + diff;
+                ping->duration = 90000 + diff;
                 found = true;
                 break;
             }

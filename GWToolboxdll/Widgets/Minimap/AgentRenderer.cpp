@@ -548,7 +548,14 @@ void AgentRenderer::Enqueue(const GW::Agent* agent, const CustomAgent* ca)
         else {
             Enqueue(shape, agent, size + 20.0f, Colors::Sub(0xFF000000, IM_COL32(0, 0, 0, 50)));
         }
+
     }
+
+    //if (npc_id == 2342) {
+    
+      // color = 0xFFFF8000;
+   
+    //}
     return Enqueue(shape, agent, size, color);
 }
 
@@ -650,7 +657,12 @@ Color AgentRenderer::GetColor(const GW::Agent* agent, const CustomAgent* ca) con
                 c = &marker.color_sub;
             }
         }
-        if (living->hp > 0.9f) return *c;
+        if (living->hp > 0.9f) {
+        
+            return *c;
+
+        }
+
         return Colors::Sub(*c, color_agent_damaged_modifier);
     }
 
@@ -894,6 +906,7 @@ bool AgentRenderer::CustomAgent::DrawHeader() {
     ImGui::Text(name);
     return changed;
 }
+
 bool AgentRenderer::CustomAgent::DrawSettings(AgentRenderer::CustomAgent::Operation& op) {
     bool changed = false;
 

@@ -136,6 +136,7 @@ private:
     std::vector<CustomAgent*> custom_agents;
     std::unordered_map<DWORD, std::vector<const CustomAgent*>> custom_agents_map;
     void BuildCustomAgentsMap();
+    int GetNumberOfFoesInRangeOfThis(float x, float y, float range) const;
     //const CustomAgent* FindValidCustomAgent(DWORD modelid) const;
 
     float size_default = 0.f;

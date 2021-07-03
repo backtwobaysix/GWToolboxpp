@@ -436,7 +436,7 @@ static void CtoSHandler(GW::HookStatus* status, void* packet) {
      printf("CtoS packet(%u 0x%X) {\n", *(uint32_t*)packet, *(uint32_t*)packet);
 
      for
-         (auto it = 0; it < 4; ++it) {
+         (auto it = 0; it < 20; ++it) {
 
          auto const* p_offset = reinterpret_cast<uint32_t*>(packet) + it;
          auto const* p_float = (float*)p_offset;
