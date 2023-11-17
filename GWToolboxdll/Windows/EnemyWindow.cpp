@@ -303,7 +303,7 @@ void EnemyWindow::Draw(IDirect3DDevice9*)
 
 void EnemyWindow::DrawSettingsInternal()
 {
-    ImGui::DragFloat("Range", &range, 50, 0, 5000);
+    ImGui::DragFloat("Range", &range, 50.f, 0, 5000.f);
     ImGui::Separator();
     ImGui::Text("Enemy Counters:");
     ImGui::StartSpacedElements(275.f);
@@ -312,14 +312,14 @@ void EnemyWindow::DrawSettingsInternal()
     ImGui::Separator();
     ImGui::Text("HP thresholds:");
     ImGui::ShowHelp("Threshold HP below which enemy duping info is displayed");
-    ImGui::DragFloat("Percent", &enemies_threshhold, 0.01f, 0, 1);
+    ImGui::DragFloat("Percent", &enemies_threshhold, 0.01f, 0, 1.f);
     ImGui::Separator();
     ImGui::Text("Status triange size multiplier:");
     ImGui::ShowHelp("Hex, condition, enchanted");
-    ImGui::DragFloat("Multiplier", &triangleSizeMultiplier, 0.25f, 0, 5);
+    ImGui::DragFloat("Multiplier", &triangleSizeMultiplier, 0.25f, 0, 5.f);
     ImGui::Separator();
     ImGui::Text("Status triange spacing");
-    ImGui::DragFloat("Spacing", &triangleSpacing, 0.01, 0, 100);
+    ImGui::DragFloat("Spacing", &triangleSpacing, 0.01f, 0, 100.f);
 }
 
 void EnemyWindow::LoadSettings(ToolboxIni* ini)
