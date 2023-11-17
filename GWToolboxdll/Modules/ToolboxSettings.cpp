@@ -50,6 +50,7 @@
 #include <Windows/ObserverExportWindow.h>
 #include <Windows/CompletionWindow.h>
 #include <Windows/DupingWindow.h>
+#include <Windows/EnemyWindow.h>
 #ifdef _DEBUG
 #include <Windows/PacketLoggerWindow.h>
 #include <Windows/DoorMonitorWindow.h>
@@ -177,6 +178,7 @@ namespace {
         RerollWindow::Instance(),
         PartyStatisticsWindow::Instance(),
         DupingWindow::Instance(),
+        EnemyWindow::Instance(),
         ArmoryWindow::Instance()
     };
 

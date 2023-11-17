@@ -96,6 +96,11 @@ void AdvancedHacks::targetsame(const wchar_t*, int, LPWSTR*)
 
         // get distance between me and agent
         const float this_distance = GW::GetSquareDistance(me->pos, agents->at(i)->pos);
+
+        if (agent->player_number == 2334 && agent->GetIsCasting()) {
+            GW::Agents::ChangeTarget(agent);
+            return;
+        }
         // continue if its larger than min distance
         if (this_distance > min_distance) continue;
         // set closest target and new minimum distance
