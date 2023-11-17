@@ -217,8 +217,8 @@ void EnemyWindow::Draw(IDirect3DDevice9*)
                 if (dupe_info.last_skill != 0) {
                     const GW::Skill* skill_data = GW::SkillbarMgr::GetSkillConstantData(static_cast<GW::Constants::SkillID>(dupe_info.last_skill));
                     ASSERT(skill_data);
-                    const auto enc_skillname = new GuiUtils::EncString(skill_data->name);
-                    skillname = enc_skillname->string();
+                    auto enc_skillname = GuiUtils::EncString(skill_data->name);
+                    skillname = enc_skillname.string();
                 }
 
                 if (TIMER_DIFF(dupe_info.last_casted) < 3000) {
