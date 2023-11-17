@@ -90,7 +90,7 @@ namespace {
         return a.distance < b.distance;
     }
 
-    void DrawDuping(const char* label, const std::vector<enemyinfo>& vec)
+    void DrawEnemies(const char* label, const std::vector<enemyinfo>& vec)
     {
 
         if (vec.empty()) {
@@ -106,9 +106,9 @@ namespace {
 
             const GW::Agent* target = GW::Agents::GetTarget();
 
-            for (const auto& dupe_info : vec) {
-                const auto living = GetAgentLivingByID(dupe_info.agent_id);
-                if (!living || dupe_info.distance > range * range) {
+            for (const auto& enemy_info : vec) {
+                const auto living = GetAgentLivingByID(enemy_info.agent_id);
+                if (!living || enemy_info.distance > range * range) {
                     continue;
                 }
                 const auto selected = target && target->agent_id == living->agent_id;
@@ -122,7 +122,7 @@ namespace {
                 const std::string agent_name_str = GuiUtils::WStringToString(agent_name_enc);
                 std::string skillname;
 
-                ImGui::PushID(dupe_info.agent_id);
+                ImGui::PushID(enemy_info.agent_id);
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
@@ -155,14 +155,14 @@ namespace {
                 ImGui::ProgressBar(living->hp, ImVec2(-1, 0), "");
                 ImGui::PopStyleColor();
 
-                if (dupe_info.last_skill != 0) {
-                    const GW::Skill* skill_data = GW::SkillbarMgr::GetSkillConstantData(static_cast<GW::Constants::SkillID>(dupe_info.last_skill));
+                if (enemy_info.last_skill != 0) {
+                    const GW::Skill* skill_data = GW::SkillbarMgr::GetSkillConstantData(static_cast<GW::Constants::SkillID>(enemy_info.last_skill));
                     ASSERT(skill_data);
                     auto enc_skillname = new GuiUtils::EncString(skill_data->name);
                     skillname = enc_skillname->string();
                 }
 
-                if (TIMER_DIFF(dupe_info.last_casted) < 3000) {
+                if (TIMER_DIFF(enemy_info.last_casted) < 3000) {
                     ImGui::GetWindowDrawList()->AddText(Pos1, IM_COL32(253, 255, 255, 255), (agent_name_str + " - " + skillname).c_str());
                 }
                 else {
@@ -192,8 +192,8 @@ namespace {
 
                 //Last Casted Skill
                 ImGui::TableSetColumnIndex(3);
-                if (dupe_info.last_casted != 0) {
-                    const auto seconds_ago = static_cast<int>((TIMER_DIFF(dupe_info.last_casted) / CLOCKS_PER_SEC));
+                if (enemy_info.last_casted != 0) {
+                    const auto seconds_ago = static_cast<int>((TIMER_DIFF(enemy_info.last_casted) / CLOCKS_PER_SEC));
                     const auto [quot, rem] = std::div(seconds_ago, 60);
                     ImGui::Text("%d:%02d", quot, rem);
                 }
@@ -296,7 +296,7 @@ void EnemyWindow::Draw(IDirect3DDevice9*)
     ImGui::SetNextWindowSize(ImVec2(300, 0), ImGuiCond_FirstUseEver);
     if (ImGui::Begin(Name(), GetVisiblePtr(), GetWinFlags())) {
 
-        DrawDuping("enemies", enemies);
+        DrawEnemies("enemies", enemies);
     }
     ImGui::End();
 }
@@ -311,7 +311,7 @@ void EnemyWindow::DrawSettingsInternal()
     ImGui::Checkbox("Show enemies", &show_enemies_counter);
     ImGui::Separator();
     ImGui::Text("HP thresholds:");
-    ImGui::ShowHelp("Threshold HP below which enemy duping info is displayed");
+    ImGui::ShowHelp("Threshold HP below which enemy  info is displayed");
     ImGui::DragFloat("Percent", &enemies_threshhold, 0.01f, 0, 1.f);
     ImGui::Separator();
     ImGui::Text("Status triange size multiplier:");
