@@ -145,12 +145,9 @@ namespace {
 
                 if (ImGui::Selectable("", selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 23))) {
                     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                        const auto living = GetAgentLivingByID(enemy_info.agent_id);
-                        if (living) {
-                            GW::GameThread::Enqueue([living] {
-                                GW::Agents::ChangeTarget(living);
-                            });
-                        }
+                        GW::GameThread::Enqueue([living] {
+                            GW::Agents::ChangeTarget(living);
+                        });
                     }
                 }
 

@@ -41,5 +41,4 @@ macro(add_tb_plugin PLUGIN)
 endmacro()
 
 add_tb_plugin(clock)
-add_tb_plugin(InstanceTimer)
 add_tb_plugin(AdvancedHacks)
