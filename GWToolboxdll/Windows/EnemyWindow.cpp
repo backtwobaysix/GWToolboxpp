@@ -24,11 +24,16 @@ namespace {
 
     bool hide_when_nothing = true;
     bool show_enemies_counter = true;
-    float enemies_threshhold = 1.0f;
-    float range = 1248.0f;
-    float triangleSpacing = 22.0f;
-    int triangleYOffset = 3;
-    float triangleSizeMultiplier = 1.0f;
+    bool show_enemy_level = true;
+    bool show_enemy_last_skill = true;
+    int triangle_y_offset = 3;
+    float enemies_threshhold = 1.f;
+    float range = 1248.f;
+    float triangle_spacing = 22.f;
+    float last_skill_threshold = 3000.f;
+    ImU32 HexedColor = IM_COL32(253, 113, 255, 255);
+    ImU32 ConditionedColor = IM_COL32(160, 117, 85, 255);
+    ImU32 EnchantedColor = IM_COL32(224, 253, 94, 255);
 
     struct enemyinfo {
         enemyinfo(const GW::AgentID agent_id) : agent_id(agent_id) {}
@@ -44,24 +49,35 @@ namespace {
         return a ? a->GetAsAgentLiving() : nullptr;
     }
 
-    void drawStatusTriangle(int triangleCount, ImVec2 position, ImU32 triangleColor, bool upsidedown)
+    void DrawStatusTriangle(int triangleCount, ImVec2 position, ImU32 triangleColor, bool upsidedown)
     {
         ImVec2 point1, point2, point3;
 
         if (upsidedown) {
-            point1 = ImVec2(position.x - (triangleCount * triangleSpacing), position.y + triangleYOffset);
-            point2 = ImVec2(position.x + (20 * triangleSizeMultiplier) - (triangleCount * triangleSpacing), position.y + triangleYOffset);
-            point3 = ImVec2(position.x + (10 * triangleSizeMultiplier) - (triangleCount * triangleSpacing), position.y + triangleYOffset + (10 * triangleSizeMultiplier));       
+            point1 = ImVec2(position.x - (triangleCount * triangle_spacing), position.y + triangle_y_offset);
+            point2 = ImVec2(position.x + 20 - (triangleCount * triangle_spacing), position.y + triangle_y_offset);
+            point3 = ImVec2(position.x + 10 - (triangleCount * triangle_spacing), position.y + triangle_y_offset + 10);       
         }
         else {
-            point1 = ImVec2(position.x - (triangleCount * triangleSpacing), position.y + triangleYOffset + (10 * triangleSizeMultiplier));
-            point2 = ImVec2(position.x + (20 * triangleSizeMultiplier) - (triangleCount * triangleSpacing), position.y + triangleYOffset + (10 * triangleSizeMultiplier));
-            point3 = ImVec2(position.x + (10 * triangleSizeMultiplier) - (triangleCount * triangleSpacing), position.y + triangleYOffset);
+            point1 = ImVec2(position.x - (triangleCount * triangle_spacing), position.y + triangle_y_offset + 10);
+            point2 = ImVec2(position.x + 20 - (triangleCount * triangle_spacing), position.y + triangle_y_offset + 10);
+            point3 = ImVec2(position.x + 10 - (triangleCount * triangle_spacing), position.y + triangle_y_offset);
         }
 
         ImGui::GetWindowDrawList()->AddTriangleFilled(point1, point2, point3, triangleColor);
     }
 
+    void WriteEnemyName(ImVec2 position, std::string name, std::string skillname, uint8_t level, clock_t last_casted)
+    {
+        if (show_enemy_level)
+            name = "Lvl " + std::to_string(level) + " " +  name; 
+        
+        if (show_enemy_last_skill && TIMER_DIFF(last_casted) < last_skill_threshold)
+            name = name + " - " + skillname;
+
+        ImGui::GetWindowDrawList()->AddText(position, IM_COL32(253, 255, 255, 255), (name).c_str());
+        
+    }
 
     uint32_t GetAgentMaxHP(const GW::AgentLiving* agent)
     {
@@ -129,9 +145,12 @@ namespace {
 
                 if (ImGui::Selectable("", selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 23))) {
                     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                        GW::GameThread::Enqueue([living] {
-                            GW::Agents::ChangeTarget(living);
-                        });
+                        const auto living = GetAgentLivingByID(enemy_info.agent_id);
+                        if (living) {
+                            GW::GameThread::Enqueue([living] {
+                                GW::Agents::ChangeTarget(living);
+                            });
+                        }
                     }
                 }
 
@@ -140,9 +159,6 @@ namespace {
                 ImVec2 progressBarPos = ImGui::GetCursorScreenPos();
                 ImVec2 Pos1 = ImVec2(progressBarPos.x + ImGui::GetContentRegionAvail().x * 0.025f, progressBarPos.y + 3);
                 ImVec2 Pos2 = ImVec2(progressBarPos.x + ImGui::GetContentRegionAvail().x - 25, progressBarPos.y + 3);
-                ImU32 HexedColor = IM_COL32(253, 113, 255, 255);
-                ImU32 ConditionedColor = IM_COL32(160, 117, 85, 255);
-                ImU32 EnchantedColor = IM_COL32(224, 253, 94, 255);
 
                 int triangles = 0;
 
@@ -162,25 +178,20 @@ namespace {
                     skillname = enc_skillname->string();
                 }
 
-                if (TIMER_DIFF(enemy_info.last_casted) < 3000) {
-                    ImGui::GetWindowDrawList()->AddText(Pos1, IM_COL32(253, 255, 255, 255), (agent_name_str + " - " + skillname).c_str());
-                }
-                else {
-                    ImGui::GetWindowDrawList()->AddText(Pos1, IM_COL32(253, 255, 255, 255), (agent_name_str).c_str());
-                }
+                WriteEnemyName(Pos1, agent_name_str, skillname, living->level, enemy_info.last_casted);
 
                 if (living->GetIsEnchanted()) {
-                    drawStatusTriangle(triangles, Pos2, EnchantedColor, false);
+                    DrawStatusTriangle(triangles, Pos2, EnchantedColor, false);
                     triangles++;
                 }
                 
                 if (living->GetIsHexed()) {
-                    drawStatusTriangle(triangles, Pos2, HexedColor, true);
+                    DrawStatusTriangle(triangles, Pos2, HexedColor, true);
                     triangles++;
                 }
 
                 if (living->GetIsConditioned()) {
-                    drawStatusTriangle(triangles, Pos2, ConditionedColor, true);
+                    DrawStatusTriangle(triangles, Pos2, ConditionedColor, true);
                 }
 
                 //Health pips
@@ -240,7 +251,7 @@ void EnemyWindow::Draw(IDirect3DDevice9*)
     const GW::AgentArray* agents = GW::Agents::GetAgentArray();
     const GW::Agent* player = agents ? GW::Agents::GetPlayer() : nullptr;
 
-    if (player) {
+    if (player && agents) {
         std::vector<enemyinfo>* enemyinfoarray = nullptr;
         std::set<GW::AgentID>* all_agents_of_type = nullptr;
         for (auto* agent : *agents) {
@@ -305,40 +316,42 @@ void EnemyWindow::DrawSettingsInternal()
 {
     ImGui::DragFloat("Range", &range, 50.f, 0, 5000.f);
     ImGui::Separator();
-    ImGui::Text("Enemy Counters:");
     ImGui::StartSpacedElements(275.f);
     ImGui::NextSpacedElement();
-    ImGui::Checkbox("Show enemies", &show_enemies_counter);
+    ImGui::Checkbox("Show level", &show_enemy_level);
+    ImGui::NextSpacedElement();
+    ImGui::Checkbox("Show enemy last skill", &show_enemy_last_skill);
     ImGui::Separator();
     ImGui::Text("HP thresholds:");
     ImGui::ShowHelp("Threshold HP below which enemy  info is displayed");
     ImGui::DragFloat("Percent", &enemies_threshhold, 0.01f, 0, 1.f);
     ImGui::Separator();
-    ImGui::Text("Status triange size multiplier:");
-    ImGui::ShowHelp("Hex, condition, enchanted");
-    ImGui::DragFloat("Multiplier", &triangleSizeMultiplier, 0.25f, 0, 5.f);
+    ImGui::Text("Last skill casted threshold:");
+    ImGui::DragFloat("Milliseconds", &last_skill_threshold, 1.f, 0, 60000.f);
     ImGui::Separator();
     ImGui::Text("Status triange spacing");
-    ImGui::DragFloat("Spacing", &triangleSpacing, 0.01f, 0, 100.f);
+    ImGui::DragFloat("Spacing", &triangle_spacing, 0.01f, 0, 100.f);
 }
 
 void EnemyWindow::LoadSettings(ToolboxIni* ini)
 {
     ToolboxWindow::LoadSettings(ini);
-    LOAD_BOOL(show_enemies_counter);
+    LOAD_BOOL(show_enemy_level);
+    LOAD_BOOL(show_enemy_last_skill);
     LOAD_FLOAT(enemies_threshhold);
     LOAD_FLOAT(range);
-    LOAD_FLOAT(triangleSizeMultiplier);
-    LOAD_FLOAT(triangleSpacing);
+    LOAD_FLOAT(triangle_spacing);
+    LOAD_FLOAT(last_skill_threshold);
 }
 
 void EnemyWindow::SaveSettings(ToolboxIni* ini)
 {
     ToolboxWindow::SaveSettings(ini);
-    SAVE_BOOL(show_enemies_counter);
+    SAVE_BOOL(show_enemy_level);
+    SAVE_BOOL(show_enemy_last_skill);
     SAVE_FLOAT(enemies_threshhold);
     SAVE_FLOAT(range);
-    SAVE_FLOAT(triangleSizeMultiplier);
-    SAVE_FLOAT(triangleSpacing);
+    SAVE_FLOAT(triangle_spacing);
+    SAVE_FLOAT(last_skill_threshold);
 
 }
